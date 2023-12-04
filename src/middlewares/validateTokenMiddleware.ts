@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import token from "../service/token";
+import token from "../services/token";
 
 export default (request: Request, _response: Response, next: NextFunction) => {
   const { token: authorization } = request.headers;

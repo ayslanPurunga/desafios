@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { IUser, IUserCreated } from '../interface';
+import { IUser, IUserCreated } from '../interfaces/Index';
 
 const { SECRET } = process.env;
 

@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { Long } from "typeorm";
 import { User } from "../entities/User";
-import { userRepository } from "../repository/userRepository";
+import { userRepository } from "../repositories/userRepository";
 
 export default class UserService {
   async create(
