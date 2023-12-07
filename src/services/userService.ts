@@ -1,37 +1,86 @@
 import bcrypt from "bcrypt";
-import { Long } from "typeorm";
-import { User } from "../entities/User";
-import { userRepository } from "../repositories/userRepository";
+import { inject, injectable } from "tsyringe";
+import { IUsersRepository } from "../interfaces/IUsersRepository";
+import { IUserCreatedDTO } from "../dtos/IUserCreatedDTO";
+import { AppError } from "../errors/AppErrors";
+import token from "./token";
+import { IUserUpdateDTO } from "../dtos/IUserUpdateDTO";
 
-export default class UserService {
-  async create(
-    userDocument: string,
-    creditCardToken: string,
-    value: Long
-  ): Promise<User> {
-    const user = new User();
+@injectable()
+class UserService {
+  constructor(
+    @inject("UsersRepository")
+    private usersRepository: IUsersRepository
+  ) { }
+  async execute(
+    {
+      userDocument,
+      creditCardToken,
+      value
+    }: IUserCreatedDTO): Promise<void> {
 
-    user.userDocument = await bcrypt.hash(userDocument, 8);
-    user.creditCardToken= await bcrypt.hash(creditCardToken, 8);
-    user.value = value;
+    const userAlreadyExists = await this.usersRepository.findOneBy(id);
 
-    const newUser = await userRepository.save(user);
-    return newUser;
+    if (userAlreadyExists) {
+      throw new AppError("User already exists")
+    }
+
+    const userDocumentEncoded = await bcrypt.hash(userDocument, 5);
+    const creditCardEncoded = await bcrypt.hash(creditCardToken, 5);
+
+    const userCreated = await this.usersRepository.create({
+      userDocument: userDocumentEncoded,
+      creditCardToken: creditCardEncoded,
+      value
+    });
+
+    const tokenCreated = token.encode(userCreated);
+
+    return tokenCreated;
+
   }
 
-  async show(id: number) {
-    const user = await userRepository.findOneById(id);
+  async getUserById(id: string) {
+    const user = await this.usersRepository.findOneBy(id);
     return user;
   }
 
-  async list() {
-    const userList = await userRepository.find()
+  async getAllUsers() {
+    const userList = await this.usersRepository.find()
     return userList;
   }
 
-  async update(id: number, userDocument: string, creditCardToken: string) {
+  async updateUser(id: string, { userDocument, creditCardToken }: IUserUpdateDTO) {
+    await this.exists(id)
+    const data: any = {}
+
+    if (userDocument) {
+      data.userDocument = await bcrypt.hash(userDocument, 5);
+    };
+    
+    if (creditCardToken) {
+      data.creditCardToken = await bcrypt.hash(creditCardToken, 5);
+    };
+    await this.usersRepository.update(data)
+
+    return this.getUserById(id)
 
   }
 
-  
+  async deleteUser(id: string){
+    await this.exists(id)
+
+    await this.usersRepository.delete(id);
+
+    return true;
+  }
+
+  async exists(id: string) {
+    if (!(await this.usersRepository.findOneBy(id))
+    ) {
+      throw new AppError(`O usuário ${id} não existe.`)
+  }
+  }
 }
+
+export { UserService }

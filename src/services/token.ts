@@ -1,15 +1,16 @@
 import jwt from 'jsonwebtoken';
-import { IUser, IUserCreated } from '../interfaces/Index';
+import { IUserDTO } from '../dtos/IUserDTO';
+import { IUserCreatedDTO } from '../dtos/IUserCreatedDTO';
 
-const { SECRET } = process.env;
+const { JWT_SECRET } = process.env;
 
-const encode = (payload: (IUser | IUserCreated)) => {
-  if (SECRET) return jwt.sign({ ...payload }, SECRET);
+const encode = (payload: (IUserDTO | IUserCreatedDTO)) => {
+  if (JWT_SECRET) return jwt.sign({ ...payload }, JWT_SECRET);
 } 
 
 const decode = (token: string) => {
   try {
-    if (SECRET)   return jwt.verify(token, SECRET);
+    if (JWT_SECRET)   return jwt.verify(token, JWT_SECRET);
   } catch (error) {
     throw new Error('Token invalido');
   }
