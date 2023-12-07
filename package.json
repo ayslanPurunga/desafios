@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon --exec ts-node ./src/index.ts",
-    "migration:generate": "typeorm-ts-node-commonjs -d ./src/data-source.ts migration:generate ./src/migrations/default",
-    "migration:run": "typeorm-ts-node-commonjs -d ./src/data-source.ts migration:run",
+    "migration:generate": "typeorm-ts-node-commonjs -d ./src/dataSource.ts migration:generate ./src/migrations/default",
+    "migration:run": "typeorm-ts-node-commonjs -d ./src/dataSource.ts migration:run",
     "build": "rm -rf ./dist && tsc",
     "start": "node ./dist/index.js"
   },
@@ -27,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.8.0",
     "typeorm": "0.3.7",
     "uuid": "^9.0.1"
   }

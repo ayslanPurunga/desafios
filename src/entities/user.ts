@@ -13,7 +13,8 @@ export class User {
     creditCardToken: string;
 
     @Column()
-    value: Long
+    value: number
+
 
     constructor() {
         if (!this.id) {
